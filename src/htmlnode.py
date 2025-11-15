@@ -24,7 +24,7 @@ class HTMLNode:
     
 class LeafNode(HTMLNode):
 
-    def __init__(self,tag, value, children = None, props = None):
+    def __init__(self, tag, value, children = None, props = None):
         if children:
             raise Exception("LeafNodes can't have children")
         super().__init__(tag, value, children, props)
