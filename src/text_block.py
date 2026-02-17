@@ -13,31 +13,42 @@ class BlockType(Enum):
     ORDERED_LIST = "ordered_list"
 
 def block_to_block_type(block:str):
-    
-    if re.match(r"#{1,6} \w+",block):
+    lines = block.split("\n")
+
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
         return BlockType.HEADING
-    if block.startswith("```\n") and block.endswith("```"):
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
         return BlockType.CODE
-    if re.match(r"^> *.+",block,flags=re.MULTILINE):
+    if block.startswith(">"):
+        for line in lines:
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
         return BlockType.QUOTE
-    if re.match(r"^- .+",block,flags=re.MULTILINE):
+    if block.startswith("- "):
+        for line in lines:
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
         return BlockType.UNORDERED_LIST
-    if re.match(r"^\d\. .+",block,flags=re.MULTILINE):
-        numbering = re.findall(r"^\d\.",block,flags=re.MULTILINE)
-        numbers = [int(number[:-1]) for number in numbering]
-        if numbers[0] == 1 and numbers == list(range(1,max(numbers)+1)):
-            return BlockType.ORDERED_LIST
-
-
+    if block.startswith("1. "):
+        i = 1
+        for line in lines:
+            if not line.startswith(f"{i}. "):
+                return BlockType.PARAGRAPH
+            i += 1
+        return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
 
 
 
 def markdown_to_blocks(markdown):
     blocks = markdown.split("\n\n")
-    blocks = [block.strip() for block in blocks]
-    blocks = [block for block in blocks if block]
-    return blocks
+    filtered_blocks = []
+    for block in blocks:
+        if block == "":
+            continue
+        block = block.strip()
+        filtered_blocks.append(block)
+    return filtered_blocks
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -56,9 +67,9 @@ def block_to_html_node(block):
         return heading_to_html_node(block)
     if block_type == BlockType.CODE:
         return code_to_html_node(block)
-    if block_type == BlockType.OLIST:
+    if block_type == BlockType.ORDERED_LIST:
         return olist_to_html_node(block)
-    if block_type == BlockType.ULIST:
+    if block_type == BlockType.UNORDERED_LIST:
         return ulist_to_html_node(block)
     if block_type == BlockType.QUOTE:
         return quote_to_html_node(block)

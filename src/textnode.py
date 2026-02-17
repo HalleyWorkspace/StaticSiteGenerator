@@ -41,9 +41,9 @@ def text_node_to_html_node(text_node):
         case TextType.CODE:
             return LeafNode(tag="code",value=text_node.text)
         case TextType.LINK:
-            return LeafNode(tag="a",value=text_node.text,href=text_node.url)
+            return LeafNode(tag="a",value=text_node.text,props={"href": text_node.url})
         case TextType.IMAGE:
-            return LeafNode(tag="img",value="",src=text_node.url,alt=text_node.text)
+            return LeafNode(tag="img",value="",props={"src": text_node.url, "alt": text_node.text})
         
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -128,8 +128,8 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 def text_to_textnodes(text):
-    original_text_node = TextNode(text,TextType.TEXT)
-    bold_split_nodes = split_nodes_delimiter([original_text_node],"**",TextType.BOLD)
+    original_text_node = [TextNode(text,TextType.TEXT)]
+    bold_split_nodes = split_nodes_delimiter(original_text_node,"**",TextType.BOLD)
     italics_split_nodes = split_nodes_delimiter(bold_split_nodes,"_",TextType.ITALIC)
     code_split_nodes = split_nodes_delimiter(italics_split_nodes,"`",TextType.CODE)
     image_split_nodes = split_nodes_image(code_split_nodes)

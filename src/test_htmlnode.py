@@ -14,7 +14,7 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
 
     def test_leaf_to_html_a(self):
-        node = LeafNode("a","This is text",None,{"href":"https://www.google.com","target": "_blank"})
+        node = LeafNode("a","This is text",{"href":"https://www.google.com","target": "_blank"})
         self.assertEqual(node.to_html(),'<a href="https://www.google.com" target="_blank">This is text</a>')
     
 
